@@ -1,0 +1,1 @@
+pip install tensorflow streamlit pillow numpy
