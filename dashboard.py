@@ -42,6 +42,13 @@ if uploaded_file:
     else:
         df = pd.read_excel(uploaded_file)
 
+    selected_city = st.sidebar.selectbox(
+    "Select City",
+    ["All"] + list(df["city"].unique())
+    )
+    if selected_city != "All":
+     df = df[df["city"] == selected_city]
+
     required_columns = ["city", "revenue", "orders"]
 
     for col in required_columns:
@@ -54,23 +61,52 @@ if uploaded_file:
     st.stop()
 # above codes ensures that instead of crashing it'll ask for a valid upload 
    total_revenue = df["revenue"].sum()
+   df["Revenue %"] = round(
+    (df["revenue"] / total_revenue) * 100,
+    2
+   )
+   top_revenue_percent = df["Revenue %"].max()
+   highest_revenue = df["revenue"].max()
+   lowest_revenue = df["revenue"].min()
+   revenue_gap = highest_revenue - lowest_revenue
+
    avg_revenue = df["revenue"].mean()
 
    highest_city = df.loc[df["revenue"].idxmax()]["city"]
    lowest_city = df.loc[df["revenue"].idxmin()]["city"]
    best_orders_city = df.loc[df["orders"].idxmax()]["city"]
    avg_orders = df["orders"].mean()
+   
+   st.subheader("Top Performer Analysis")
+   st.success(
+    f"🏆 {highest_city} contributes {top_revenue_percent}% of total revenue and is currently your strongest market."
+   )
+   st.info(
+    f"📈 Focus future marketing efforts on {highest_city} to maximize growth."
+   ) 
+   
+   st.subheader("Trend Analysis")
+   st.write(
+   f"The revenue gap between the best and weakest market is ₹{revenue_gap:,}."
+   )
+   
+   if revenue_gap > 20000:
+    st.warning(
+        "Revenue is highly concentrated. Consider strengthening weaker markets."
+    )
+   else:
+    st.success(
+        "Revenue distribution appears relatively balanced across cities."
+    )
 
    st.subheader("Business Metrics")
 
    col1, col2 = st.columns(2)
 
    with col1:
-    st.metric("Total Revenue", int(total_revenue))
-  
+    st.metric("Total Revenue", f"₹{total_revenue:,}")
    with col2:
-    st.metric("Average Revenue", round(avg_revenue, 2))
-
+     st.metric("Average Revenue", f"₹{average_revenue:,.2f}")
    col3, col4 = st.columns(2)
 
    with col3:
@@ -141,6 +177,12 @@ if uploaded_file:
    c.drawString(100, 700, f"Lowest City: {lowest_city}")
 
    c.save()
+
+   st.subheader("Revenue Contribution")
+
+   st.dataframe(
+    df[["city", "revenue", "Revenue %"]]
+   )
 
    with open(pdf_file, "rb") as file:
      st.download_button(
