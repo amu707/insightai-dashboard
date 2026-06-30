@@ -27,45 +27,56 @@ uploaded_file = st.sidebar.file_uploader(
 )
 if uploaded_file:
 
-   # df = pd.read_excel(uploaded_file)
-#    if uploaded_file.name.endswith(".csv"):
-#     df = pd.read_csv(uploaded_file)
-
-# else:
-#     df = pd.read_excel(uploaded_file)
-   
-   try:
-
-    if uploaded_file.name.endswith(".csv"):
+   if uploaded_file.name.endswith(".csv"):
         df = pd.read_csv(uploaded_file)
-
-    else:
+   else:
         df = pd.read_excel(uploaded_file)
 
-    selected_city = st.sidebar.selectbox(
+   st.write("Columns in file:")
+   st.write(df.columns.tolist())
+
+#    if uploaded_file.name.endswith(".csv"):
+#      df = pd.read_csv(uploaded_file)
+#    else:
+#      df = pd.read_excel(uploaded_file)
+
+# df["city"] = df["city"].str.title()
+
+# st.write("Columns in file:")
+# st.write(df.columns.tolist())
+    
+    # try:
+
+    #   if uploaded_file.name.endswith(".csv"):
+    #   df = pd.read_csv(uploaded_file)
+
+    # else:
+    #     df = pd.read_excel(uploaded_file)
+
+   selected_city = st.sidebar.selectbox(
     "Select City",
     ["All"] + list(df["city"].unique())
     )
-    if selected_city != "All":
-     df = df[df["city"] == selected_city]
+   if selected_city != "All":
+      df = df[df["city"] == selected_city]
 
-    required_columns = ["city", "revenue", "orders"]
+   required_columns = ["city", "revenue", "orders"]
 
-    for col in required_columns:
+   for col in required_columns:
         if col not in df.columns:
             st.error(f"Missing column: {col}")
             st.stop()
 
-   except Exception:
-    st.error("Please upload a valid CSV or Excel file.")
-    st.stop()
-# above codes ensures that instead of crashing it'll ask for a valid upload 
+#    except Exception:
+#     st.error("Please upload a valid CSV or Excel file.")
+#     st.stop()
+    # above codes ensures that instead of crashing it'll ask for a valid upload 
    total_revenue = df["revenue"].sum()
-   df["Revenue %"] = round(
-    (df["revenue"] / total_revenue) * 100,
-    2
+   df["revenue %"] = round(
+   (df["revenue"] / total_revenue) * 100,
+   2
    )
-   top_revenue_percent = df["Revenue %"].max()
+   top_revenue_percent = df["revenue %"].max()
    highest_revenue = df["revenue"].max()
    lowest_revenue = df["revenue"].min()
    revenue_gap = highest_revenue - lowest_revenue
@@ -92,21 +103,24 @@ if uploaded_file:
    
    if revenue_gap > 20000:
     st.warning(
-        "Revenue is highly concentrated. Consider strengthening weaker markets."
+        "revenue is highly concentrated. Consider strengthening weaker markets."
     )
    else:
     st.success(
-        "Revenue distribution appears relatively balanced across cities."
+        "revenue distribution appears relatively balanced across cities."
     )
 
    st.subheader("Business Metrics")
 
+   average_revenue = df["revenue"].mean()
+
    col1, col2 = st.columns(2)
 
    with col1:
-    st.metric("Total Revenue", f"₹{total_revenue:,}")
+    st.metric("Total revenue", f"₹{total_revenue:,.0f}")
+    # st.metric("Total revenue", f"₹{total_revenue:,}")
    with col2:
-     st.metric("Average Revenue", f"₹{average_revenue:,.2f}")
+     st.metric("Average revenue", f"₹{average_revenue:,.2f}")
    col3, col4 = st.columns(2)
 
    with col3:
@@ -123,7 +137,7 @@ if uploaded_file:
    with col6:
     st.metric("Average Orders", round(avg_orders, 2))
 
-   st.subheader("Revenue by City")
+   st.subheader("revenue by City")
 
    fig, ax = plt.subplots()
 
@@ -139,7 +153,7 @@ if uploaded_file:
 
    st.pyplot(fig2)
 
-   st.subheader("Revenue Share")
+   st.subheader("revenue Share")
 
    fig3, ax3 = plt.subplots()
 
@@ -168,9 +182,9 @@ if uploaded_file:
 
    c.drawString(100, 800, "InsightAI Business Report")
 
-   c.drawString(100, 760, f"Total Revenue: {total_revenue}")
+   c.drawString(100, 760, f"Total revenue: {total_revenue}")
 
-   c.drawString(100, 740, f"Average Revenue: {avg_revenue}")
+   c.drawString(100, 740, f"Average revenue: {avg_revenue}")
 
    c.drawString(100, 720, f"Top City: {highest_city}")
 
@@ -178,10 +192,10 @@ if uploaded_file:
 
    c.save()
 
-   st.subheader("Revenue Contribution")
+   st.subheader("revenue Contribution")
 
    st.dataframe(
-    df[["city", "revenue", "Revenue %"]]
+    df[["city", "revenue", "revenue %"]]
    )
 
    with open(pdf_file, "rb") as file:
@@ -203,8 +217,8 @@ if uploaded_file:
    elements.append(Paragraph("InsightAI Business Report", styles['Title']))
    elements.append(Spacer(1, 12))
 
-   elements.append(Paragraph(f"Total Revenue: {total_revenue}", styles['BodyText']))
-   elements.append(Paragraph(f"Average Revenue: {avg_revenue}", styles['BodyText']))
+   elements.append(Paragraph(f"Total revenue: {total_revenue}", styles['BodyText']))
+   elements.append(Paragraph(f"Average revenue: {avg_revenue}", styles['BodyText']))
    elements.append(Paragraph(f"Top City: {highest_city}", styles['BodyText']))
    elements.append(Paragraph(f"Lowest City: {lowest_city}", styles['BodyText']))
    elements.append(Paragraph(f"Best Orders City: {best_orders_city}", styles['BodyText']))
