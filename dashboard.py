@@ -35,6 +35,20 @@ if uploaded_file:
    st.write("Columns in file:")
    st.write(df.columns.tolist())
 
+  
+# Make column names lowercase and remove spaces
+   df.columns = df.columns.str.strip().str.lower()
+    # Validate uploaded file
+   required_columns = ["city", "revenue", "orders"]
+
+   missing = [col for col in required_columns if col not in df.columns]
+
+   if missing:
+    st.error("❌ Unsupported file format.")
+    st.write("Expected columns:", required_columns)
+    st.write("Your file contains:", list(df.columns))
+    st.stop()
+
 #    if uploaded_file.name.endswith(".csv"):
 #      df = pd.read_csv(uploaded_file)
 #    else:
@@ -60,12 +74,12 @@ if uploaded_file:
    if selected_city != "All":
       df = df[df["city"] == selected_city]
 
-   required_columns = ["city", "revenue", "orders"]
+#    required_columns = ["city", "revenue", "orders"]
 
-   for col in required_columns:
-        if col not in df.columns:
-            st.error(f"Missing column: {col}")
-            st.stop()
+#    for col in required_columns:
+#         if col not in df.columns:
+#             st.error(f"Missing column: {col}")
+#             st.stop()
 
 #    except Exception:
 #     st.error("Please upload a valid CSV or Excel file.")
